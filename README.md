@@ -35,13 +35,15 @@ A simple JSON API that always returns the same quiz to be solved. The API suppor
   `POST`
   
 * **Data Params**
+
+   `answer` optional, since all options can be wrong.
   
    ```
   {
-    "title": "The Java Logo",
-    "text": "What is depicted on the Java logo?",
-    "options": ["Robot","Tea leaf","Cup of coffee","Bug"],
-    "answer": 2
+    "title": "Coffee drinks",
+    "text": "Select only coffee drinks.",
+    "options": ["Americano","Tea","Cappuccino","Sprite"],
+    "answer": [0,2]
   }
   ```
 
@@ -53,9 +55,9 @@ A simple JSON API that always returns the same quiz to be solved. The API suppor
   ```
   {
     "id": 1,
-    "title": "The Java Logo",
-    "text": "What is depicted on the Java logo?",
-    "options": ["Robot","Tea leaf","Cup of coffee","Bug"]
+    "title": "Coffee drinks",
+    "text": "Select only coffee drinks.",
+    "options": ["Americano","Tea","Cappuccino","Sprite"],
   }
   ```
 
@@ -97,7 +99,7 @@ None
 * **Error Response:**
 
   * **Code:** 404 NOT FOUND <br />
-    **Content:** `{ error : "User doesn't exist" }`
+    **Content:** `{ error : "NOT FOUND" }`
     
     
 ***Get all quizzes***
@@ -159,22 +161,22 @@ None
   `POST`
   
 * **Data Params**
-  
-   `{ "answer": 2 }`
+
+   `{ "answer": [0,2] }`
+   
+   It is also possible to send an empty array [] since some quizzes may not have correct options.
 
 * **Success Response:**
 
   If the passed answer is correct:
-    
-  * **Code:** 200 <br />
-    **Content:** `{"success":true,"feedback":"Congratulations, you're right!"}`
+
+  * **Content:** `{"success":true,"feedback":"Congratulations, you're right!"}`
  
-* **Error Response:**
+* **Error Responses:**
 
   If the answer is incorrect:
 
-  * **Code:** 200 <br />
-    **Content:** `{"success":false,"feedback":"Wrong answer! Please, try again."}`
+  * **Content:** `{"success":false,"feedback":"Wrong answer! Please, try again."}`
     
   If the specified quiz does not exist:
   
