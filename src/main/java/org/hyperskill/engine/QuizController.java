@@ -1,54 +1,66 @@
 package org.hyperskill.engine;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.Set;
 
 @RestController
+@RequestMapping("/api/quizzes")
+@Component
 public class QuizController {
 
-    private final List<Quiz> quizList = new ArrayList<>();
+    private static final String NOT_FOUND_MESSAGE = "not found";
+    private final QuizService quizService;
 
-    public QuizController() {}
-
-    @PostMapping("/api/quizzes")
-    public Quiz addQuiz(@RequestBody Quiz quiz) {
-        quizList.add(quiz);
-        return quizList.get(quiz.getId() - 1);
+    @Autowired
+    public QuizController(QuizService quizService) {
+        this.quizService = quizService;
     }
 
-    @PostMapping("/api/quizzes/{id}/solve")
-    public Answer passAnswer(@PathVariable int id, @RequestParam("answer") int option) {
-        return option == quizList.get(id - 1).getAnswer()
-                ? Answer.CORRECT_ANSWER
-                : Answer.WRONG_ANSWER;
+    @PostMapping()
+    public Quiz addQuiz(@Valid @RequestBody Quiz quiz) {
+        quizService.addQuiz(quiz);
+        return quiz;
     }
 
-    @GetMapping("/api/quizzes/{id}")
+    @PostMapping(value = "/{id}/solve", consumes = "application/json")
+    public Response sendAnswer(@PathVariable int id, @RequestBody Answer answer) {
+        return answer.isEmpty() && getQuiz(id).isAnswerNull() || Arrays.equals(answer.getAnswer(), getQuiz(id).getAnswer())
+                ? Response.CORRECT_ANSWER
+                : Response.WRONG_ANSWER;
+    }
+
+    @GetMapping("/{id}")
     public Quiz getQuiz(@PathVariable int id) {
-        try {
-            return quizList.get(id - 1);
-
-        } catch (IndexOutOfBoundsException e) {
-            throw new QuizNotFoundException("not found");
+        Quiz quiz = quizService.getQuizById(id);
+        if (quiz != null) {
+            return quiz;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE);
         }
     }
 
-    @GetMapping("/api/quizzes")
-    public List<Quiz> getQuizzes() {
-        return quizList;
+    @GetMapping()
+    public Set<Quiz> getQuizzes() {
+        return quizService.getQuizSet();
     }
 
 
-    static class Answer {
+    static class Response {
 
-        private final static Answer CORRECT_ANSWER = new Answer(true, "Congratulations, you're right!");
-        private final static Answer WRONG_ANSWER = new Answer(false, "Wrong answer! Please, try again.");
+        private final static Response CORRECT_ANSWER = new Response(true, "Congratulations, you're right!");
+        private final static Response WRONG_ANSWER = new Response(false, "Wrong answer! Please, try again.");
 
         private final boolean success;
         private final String feedback;
 
-        public Answer(boolean success, String feedback) {
+        public Response(boolean success, String feedback) {
             this.success = success;
             this.feedback = feedback;
         }
@@ -59,6 +71,26 @@ public class QuizController {
 
         public String getFeedback() {
             return feedback;
+        }
+    }
+
+    static class Answer {
+
+        private int[] answer;
+
+        public Answer() {
+        }
+
+        public int[] getAnswer() {
+            return answer;
+        }
+
+        public void setAnswer(int[] answer) {
+            this.answer = answer;
+        }
+
+        public boolean isEmpty() {
+            return answer.length == 0;
         }
     }
 }
