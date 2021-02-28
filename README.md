@@ -1,7 +1,7 @@
 # Web Quiz Engine
 
 This project is a multi-user web service for creating, getting and solving quizzes using REST API.
-Quizzes are stored in the service's memory, without an external storage.
+Quizzes are stored in 'h2' database.
 
 Requirements
 ------------
@@ -172,11 +172,13 @@ None
 
   * **Content:** `{"success":true,"feedback":"Congratulations, you're right!"}`
  
-* **Error Responses:**
+* **Error Response:**
 
   If the answer is incorrect:
 
   * **Content:** `{"success":false,"feedback":"Wrong answer! Please, try again."}`
+    
+  OR
     
   If the specified quiz does not exist:
   
