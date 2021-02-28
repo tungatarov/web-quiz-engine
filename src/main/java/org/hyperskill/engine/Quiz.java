@@ -3,16 +3,20 @@ package org.hyperskill.engine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
+@Entity
+@Table(name = "quizzes")
 public class Quiz {
 
-    private static final AtomicInteger counter = new AtomicInteger();
+    @Id
+    @Column(name = "quizId")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @NotNull
@@ -32,7 +36,6 @@ public class Quiz {
     public Quiz() {}
 
     public Quiz(String title, String text, String[] options, int[] answer) {
-        id = counter.incrementAndGet();
         this.title = title;
         this.text = text;
         this.options = options;
@@ -60,7 +63,6 @@ public class Quiz {
     }
 
     public void setTitle(String title) {
-        id = counter.incrementAndGet();
         this.title = title;
     }
 

@@ -8,7 +8,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/quizzes")
@@ -17,6 +18,8 @@ public class QuizController {
 
     private static final String NOT_FOUND_MESSAGE = "not found";
     private final QuizService quizService;
+    @Autowired
+    private QuizRepository quizRepository;
 
     @Autowired
     public QuizController(QuizService quizService) {
@@ -25,20 +28,19 @@ public class QuizController {
 
     @PostMapping()
     public Quiz addQuiz(@Valid @RequestBody Quiz quiz) {
-        quizService.addQuiz(quiz);
-        return quiz;
+        return quizRepository.save(quiz);
     }
 
     @PostMapping(value = "/{id}/solve", consumes = "application/json")
-    public Response sendAnswer(@PathVariable int id, @RequestBody Answer answer) {
-        return answer.isEmpty() && getQuiz(id).isAnswerNull() || Arrays.equals(answer.getAnswer(), getQuiz(id).getAnswer())
+    public Response solveQuiz(@PathVariable int id, @RequestBody Answer answer) {
+        return answer.isEmpty() && getQuizById(id).isAnswerNull() || Arrays.equals(answer.getAnswer(), getQuizById(id).getAnswer())
                 ? Response.CORRECT_ANSWER
                 : Response.WRONG_ANSWER;
     }
 
     @GetMapping("/{id}")
-    public Quiz getQuiz(@PathVariable int id) {
-        Quiz quiz = quizService.getQuizById(id);
+    public Quiz getQuizById(@PathVariable int id) {
+        Quiz quiz = quizRepository.findQuizById(id);
         if (quiz != null) {
             return quiz;
         } else {
@@ -47,8 +49,8 @@ public class QuizController {
     }
 
     @GetMapping()
-    public Set<Quiz> getQuizzes() {
-        return quizService.getQuizSet();
+    public List<Quiz> getQuizzes() {
+        return quizRepository.findAll();
     }
 
 
