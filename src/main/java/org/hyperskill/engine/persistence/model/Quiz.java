@@ -1,7 +1,6 @@
-package org.hyperskill.engine;
+package org.hyperskill.engine.persistence.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,9 +14,8 @@ import java.util.Objects;
 public class Quiz {
 
     @Id
-    @Column(name = "quizId")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     @NotNull
     @Pattern(regexp = "(.*[a-z].*)")
@@ -33,6 +31,11 @@ public class Quiz {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int[] answer;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
+
     public Quiz() {}
 
     public Quiz(String title, String text, String[] options, int[] answer) {
@@ -42,7 +45,8 @@ public class Quiz {
         this.answer = answer;
     }
 
-    public int getId() {
+
+    public Long getId() {
         return id;
     }
 
@@ -62,6 +66,10 @@ public class Quiz {
         return answer;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -76,6 +84,14 @@ public class Quiz {
 
     public void setAnswer(int[] answer) {
         this.answer = answer;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @JsonIgnore
@@ -100,5 +116,16 @@ public class Quiz {
         result = 31 * result + Arrays.hashCode(options);
         result = 31 * result + Arrays.hashCode(answer);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Quiz{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", text='" + text + '\'' +
+                ", options=" + Arrays.toString(options) +
+                ", answer=" + Arrays.toString(answer) +
+                '}';
     }
 }

@@ -1,10 +1,12 @@
-package org.hyperskill.engine;
+package org.hyperskill.engine.web.controller;
 
+import org.hyperskill.engine.persistence.dao.UserRepository;
+import org.hyperskill.engine.persistence.model.Quiz;
+import org.hyperskill.engine.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -17,40 +19,34 @@ import java.util.List;
 public class QuizController {
 
     private static final String NOT_FOUND_MESSAGE = "not found";
+
     private final QuizService quizService;
-    @Autowired
-    private QuizRepository quizRepository;
 
     @Autowired
-    public QuizController(QuizService quizService) {
+    public QuizController(QuizService quizService, UserRepository userRepository) {
         this.quizService = quizService;
     }
 
     @PostMapping()
     public Quiz addQuiz(@Valid @RequestBody Quiz quiz) {
-        return quizRepository.save(quiz);
+        return quizService.addQuiz(quiz);
     }
 
     @PostMapping(value = "/{id}/solve", consumes = "application/json")
-    public Response solveQuiz(@PathVariable int id, @RequestBody Answer answer) {
-        return answer.isEmpty() && getQuizById(id).isAnswerNull() || Arrays.equals(answer.getAnswer(), getQuizById(id).getAnswer())
+    public Response solveQuiz(@PathVariable Long id, @RequestBody Answer answer) {
+        return answer.isEmpty() && getQuiz(id).isAnswerNull() || Arrays.equals(answer.getAnswer(), getQuiz(id).getAnswer())
                 ? Response.CORRECT_ANSWER
                 : Response.WRONG_ANSWER;
     }
 
     @GetMapping("/{id}")
-    public Quiz getQuizById(@PathVariable int id) {
-        Quiz quiz = quizRepository.findQuizById(id);
-        if (quiz != null) {
-            return quiz;
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, NOT_FOUND_MESSAGE);
-        }
+    public Quiz getQuiz(@PathVariable Long id) {
+        return quizService.getQuizById(id);
     }
 
     @GetMapping()
     public List<Quiz> getQuizzes() {
-        return quizRepository.findAll();
+        return quizService.getAllQuizzes();
     }
 
 
