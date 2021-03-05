@@ -1,7 +1,6 @@
 # Web Quiz Engine
 
-This project is a multi-user web service for creating, getting and solving quizzes using REST API.
-Quizzes are stored in 'h2' database.
+This project is a multi-user web service for creating, getting and solving quizzes using REST API, an embedded database, security, and other technologies. Concentrated on the server side ("engine") with no user interface at all. The stages of the project are described in terms of a client-server model, where the client can be a browser, a curl tool, a REST client (like a postman), or something else.
 
 Requirements
 ------------
@@ -16,19 +15,52 @@ Installation
    for *nix `gradlew build`\
    for windows `gradlew.bat build`
 3. Run the program `java -jar build/libs/*.jar`
-4. Open http://localhost:8999/
+4. Url `http://localhost:8999/`
 
 Usage
 ------------
-A simple JSON API that always returns the same quiz to be solved. The API supported operations: creating, getting all quizzes, getting quiz by id and solving it by passing an answer. Each operation is described in more detail below.
+ The API supported operations: creating, getting all quizzes, getting a quiz by id and solving it by passing an answer. Each operation is described in more detail below.
 
-***Create a new quiz***
+ To perform any quiz operations the user must be registered and then authorized via HTTP Basic Auth by sending their email address and password for each request.
+
+***Register a user***
 ----
-  To create a new quiz, needs to send a JSON as the request's body via POST to /api/quizzes.
+  To register a new user, needs to send a JSON with `email` and `password` via `POST` request to `/api/register`.
 
 * **URL**
 
-  /api/quizzes
+  `/api/register`
+
+* **Method:**
+
+  `POST`
+  
+* **Data Params**
+
+  ```
+  {
+    "email": "test@gmail.com",
+    "password": "secret"
+  }
+  ```
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** None
+    
+* **Error Response:**
+
+  * **Code:** 400 BAD REQUEST <br />
+    **Content:** None
+    
+***Create a new quiz***
+----
+  To create a new quiz, needs to send a JSON as the request's body via `POST` to `/api/quizzes`.
+
+* **URL**
+
+  `/api/quizzes`
 
 * **Method:**
 
@@ -63,11 +95,11 @@ A simple JSON API that always returns the same quiz to be solved. The API suppor
 
 ***Get a quiz by id***
 ----
-  To get a quiz by id, needs to send the GET request to /api/quizzes/{id}
+  To get a quiz by id, needs to send the `GET` request to `/api/quizzes/{id}`.
 
 * **URL**
 
-  /api/quizzes/{id}
+  `/api/quizzes/{id}`
 
 * **Method:**
 
@@ -104,11 +136,11 @@ None
     
 ***Get all quizzes***
 ----
-  To get all existing quizzes in the service, needs to send the GET request to /api/quizzes.
+  To get all existing quizzes in the service, needs to send the `GET` request to `/api/quizzes`.
 
 * **URL**
 
-  /api/quizzes
+  `/api/quizzes`
 
 * **Method:**
 
@@ -150,15 +182,21 @@ None
             
 ***Solve a quiz***
 ----
-  To solve the quiz, needs to send a POST request to /api/quizzes/{id}/solve and pass the answer parameter in the content.
+  To solve the quiz, needs to send a `POST` request to `/api/quizzes/{id}/solve` and pass the `answer` parameter in the content.
 
 * **URL**
 
-  /api/quizzes/{id}/solve
+  `/api/quizzes/{id}/solve`
 
 * **Method:**
 
   `POST`
+  
+*  **URL Params**
+
+ **Required:**
+
+ `id=[integer]`
   
 * **Data Params**
 
@@ -170,12 +208,14 @@ None
 
   If the passed answer is correct:
 
+  * **Code:** 200 <br />
   * **Content:** `{"success":true,"feedback":"Congratulations, you're right!"}`
  
 * **Error Response:**
 
   If the answer is incorrect:
 
+  * **Code:** 200 <br />
   * **Content:** `{"success":false,"feedback":"Wrong answer! Please, try again."}`
     
   OR
@@ -184,3 +224,47 @@ None
   
   * **Code:** 404 NOT FOUND <br />
     **Content:** `{"success":false,"feedback":"Wrong answer! Please, try again."}`
+    
+    
+***Delete a quiz***
+----
+  To delete the quiz, needs to send the `DELETE` request to `/api/quizzes/{id}`.
+
+* **URL**
+
+  `/api/quizzes/{id}`
+
+* **Method:**
+
+  `DELETE`
+
+*  **URL Params**
+
+ **Required:**
+
+ `id=[integer]`
+  
+* **Data Params**
+
+  None
+
+* **Success Response:**
+
+  If the operation was successful:
+
+  * **Code:** 204 NO CONTENT <br />
+    **Content:** None
+    
+* **Error Response:**
+
+  If the specified quiz does not exist:
+  
+  * **Code:** 404 NOT FOUND <br />
+    **Content:** None
+    
+  OR
+  
+  If the specified user is not the author of this quiz:
+
+  * **Code:** 403 FORBIDDEN <br />
+      **Content:** None
