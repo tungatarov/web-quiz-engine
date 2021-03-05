@@ -42,4 +42,14 @@ public class QuizService {
         return quizRepository.findById(id).
                 orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
+
+    public ResponseEntity<String> deleteUserCreatedQuizById(Long id) {
+        User user = userService.getUserByEmail(request.getUserPrincipal().getName());
+        Quiz quiz = getQuizById(id);
+        if (!quiz.getUser().getId().equals(user.getId())) {
+            throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        quizRepository.delete(quiz);
+        return ResponseEntity.noContent().build();
+    }
 }

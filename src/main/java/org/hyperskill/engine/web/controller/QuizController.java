@@ -49,6 +49,11 @@ public class QuizController {
         return quizService.getAllQuizzes();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUserCreatedQuiz(@PathVariable Long id) {
+        return quizService.deleteUserCreatedQuizById(id);
+    }
+
 
     static class Response {
 
