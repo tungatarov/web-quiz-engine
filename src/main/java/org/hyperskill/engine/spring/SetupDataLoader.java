@@ -1,16 +1,16 @@
 package org.hyperskill.engine.spring;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import org.hyperskill.engine.persistence.dao.PrivilegeRepository;
+import org.hyperskill.engine.persistence.dao.QuizRepository;
 import org.hyperskill.engine.persistence.dao.RoleRepository;
 import org.hyperskill.engine.persistence.dao.UserRepository;
 import org.hyperskill.engine.persistence.model.Privilege;
+import org.hyperskill.engine.persistence.model.Quiz;
 import org.hyperskill.engine.persistence.model.Role;
 import org.hyperskill.engine.persistence.model.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -26,13 +26,15 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PrivilegeRepository privilegeRepository;
+    private final QuizRepository quizRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SetupDataLoader(UserRepository userRepository, RoleRepository roleRepository, PrivilegeRepository privilegeRepository, PasswordEncoder passwordEncoder) {
+    public SetupDataLoader(UserRepository userRepository, RoleRepository roleRepository, PrivilegeRepository privilegeRepository, QuizRepository quizRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.privilegeRepository = privilegeRepository;
+        this.quizRepository = quizRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -54,10 +56,39 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         final List<Privilege> adminPrivileges = new ArrayList<>(Arrays.asList(readPrivilege, writePrivilege, passwordPrivilege));
         final List<Privilege> userPrivileges = new ArrayList<>(Arrays.asList(readPrivilege, passwordPrivilege));
         final Role adminRole = createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
-        createRoleIfNotFound("ROLE_USER", userPrivileges);
+        final Role userRole = createRoleIfNotFound("ROLE_USER", userPrivileges);
 
         // == create initial user
-        createUserIfNotFound("test@test.com", "password", new ArrayList<>(Arrays.asList(adminRole)));
+        User adminUser = createUserIfNotFound("test@test.com", "password", new ArrayList<>(Arrays.asList(adminRole)));
+
+        // == create initial quizzes
+        final List<Quiz> quizzes = new ArrayList<>(Arrays.asList(
+                createQuizIfNotFound("The Java Logo",
+                        "What is depicted on the Java logo?",
+                        new String[]{"Robot","Tea leaf","Cup of coffee","Bug"},
+                        new int[]{2},
+                        adminUser),
+                createQuizIfNotFound("The Ultimate Question",
+                        "What is the answer to the Ultimate Question of Life, the Universe and Everything?",
+                        new String[]{"Everything goes right","42","2+2=4","11011100"},
+                        new int[]{1},
+                        adminUser),
+                createQuizIfNotFound("Math1",
+                        "Which of the following is equal to 4?",
+                        new String[]{"1+3","2+2","8-1","1+5"},
+                        new int[]{0,1},
+                        adminUser),
+                createQuizIfNotFound("Math2",
+                        "Which of the following is equal to 4?",
+                        new String[]{"1+1","2+2","8-1","5-1"},
+                        new int[]{1,3},
+                        adminUser),
+                createQuizIfNotFound("Math5",
+                        "Which of the following is equal to 4?",
+                        new String[]{"2^2","2+2","2-2","2*2"},
+                        new int[]{0,1,3},
+                        adminUser)
+        ));
 
         alreadySetup = true;
     }
@@ -97,4 +128,19 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         return user;
     }
 
+    @Transactional
+    Quiz createQuizIfNotFound(final String title, final String text, final String[] options,
+                              final int[] answer, final User user) {
+        Quiz quiz = quizRepository.findByTitle(title);
+        if (quiz == null) {
+            quiz = new Quiz();
+            quiz.setTitle(title);
+            quiz.setText(text);
+            quiz.setOptions(options);
+            quiz.setAnswer(answer);
+            quiz.setAuthor(user);
+            quizRepository.save(quiz);
+        }
+        return quiz;
+    }
 }

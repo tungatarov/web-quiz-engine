@@ -3,6 +3,7 @@ package org.hyperskill.engine.service;
 import org.hyperskill.engine.persistence.dao.RoleRepository;
 import org.hyperskill.engine.persistence.dao.UserRepository;
 import org.hyperskill.engine.persistence.model.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,10 +37,6 @@ public class UserService {
         user.setEmail(accountDto.getEmail());
         user.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
         return userRepository.save(user);
-    }
-
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
     }
 
     private boolean emailExists(final String email) {

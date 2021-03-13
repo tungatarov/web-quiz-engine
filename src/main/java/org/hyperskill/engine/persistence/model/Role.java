@@ -1,5 +1,7 @@
 package org.hyperskill.engine.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -14,6 +16,7 @@ public class Role {
 
     private String name;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "roles")
     private Collection<User> users;
 
@@ -64,14 +67,5 @@ public class Role {
 
     public void setPrivileges(Collection<Privilege> privileges) {
         this.privileges = privileges;
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", privileges=" + privileges +
-                '}';
     }
 }

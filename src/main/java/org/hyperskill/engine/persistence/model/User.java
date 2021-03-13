@@ -17,8 +17,10 @@ public class User {
     @Pattern(regexp = "^(.+)@(.+)[.](.+)$")
     @Column(unique = true)
     private String email;
+
     @Size(min = 5)
     private String password;
+
     private boolean enabled;
 
     @ManyToMany
@@ -30,8 +32,11 @@ public class User {
                     name = "role_id", referencedColumnName = "id"))
     private Collection<Role> roles;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private Collection<Quiz> quizzes;
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private Collection<Quiz> createdQuizzes;
+
+    @OneToMany(mappedBy = "user")
+    private Collection<CompletedQuiz> completedQuizzes;
 
 
     public User() {
@@ -78,15 +83,19 @@ public class User {
         this.roles = roles;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                ", enabled=" + enabled +
-                ", roles=" + roles +
-                ", quizzes=" + quizzes +
-                '}';
+    public Collection<Quiz> getCreatedQuizzes() {
+        return createdQuizzes;
+    }
+
+    public void setCreatedQuizzes(Collection<Quiz> createdQuizzes) {
+        this.createdQuizzes = createdQuizzes;
+    }
+
+    public Collection<CompletedQuiz> getCompletedQuizzes() {
+        return completedQuizzes;
+    }
+
+    public void setCompletedQuizzes(Collection<CompletedQuiz> completedQuizzes) {
+        this.completedQuizzes = completedQuizzes;
     }
 }

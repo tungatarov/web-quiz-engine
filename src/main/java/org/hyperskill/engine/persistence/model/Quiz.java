@@ -1,13 +1,13 @@
 package org.hyperskill.engine.persistence.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Arrays;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "quizzes")
@@ -31,20 +31,16 @@ public class Quiz {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private int[] answer;
 
+    @JoinColumn(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private User user;
+    @JoinColumn(name = "author_id")
+    private User author;
+
 
     public Quiz() {}
-
-    public Quiz(String title, String text, String[] options, int[] answer) {
-        this.title = title;
-        this.text = text;
-        this.options = options;
-        this.answer = answer;
-    }
-
 
     public Long getId() {
         return id;
@@ -86,46 +82,16 @@ public class Quiz {
         this.answer = answer;
     }
 
-    public User getUser() {
-        return user;
+    public User getAuthor() {
+        return author;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     @JsonIgnore
     public boolean isAnswerNull() {
         return answer == null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Quiz quiz = (Quiz) o;
-        return  title.equals(quiz.title) &&
-                text.equals(quiz.text) &&
-                Arrays.equals(options, quiz.options) &&
-                Arrays.equals(answer, quiz.answer);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(title, text);
-        result = 31 * result + Arrays.hashCode(options);
-        result = 31 * result + Arrays.hashCode(answer);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Quiz{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", text='" + text + '\'' +
-                ", options=" + Arrays.toString(options) +
-                ", answer=" + Arrays.toString(answer) +
-                '}';
     }
 }
