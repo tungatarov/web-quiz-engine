@@ -4,6 +4,10 @@ import org.hyperskill.engine.persistence.dao.QuizRepository;
 import org.hyperskill.engine.persistence.model.Quiz;
 import org.hyperskill.engine.persistence.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -34,8 +38,9 @@ public class QuizService {
         return quizRepository.save(quiz);
     }
 
-    public List<Quiz> getAllQuizzes() {
-        return quizRepository.findAll();
+    public Page<Quiz> getAllQuizzes(Integer page) {
+        Pageable paging = PageRequest.of(page, 10, Sort.by("id"));
+        return quizRepository.findAll(paging);
     }
 
     public Quiz getQuizById(Long id) {

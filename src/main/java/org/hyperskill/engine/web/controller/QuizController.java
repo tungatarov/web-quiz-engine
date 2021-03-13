@@ -4,6 +4,7 @@ import org.hyperskill.engine.persistence.dao.UserRepository;
 import org.hyperskill.engine.persistence.model.Quiz;
 import org.hyperskill.engine.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
@@ -45,8 +46,8 @@ public class QuizController {
     }
 
     @GetMapping()
-    public List<Quiz> getQuizzes() {
-        return quizService.getAllQuizzes();
+    public Page<Quiz> getQuizzes(@RequestParam(defaultValue = "0") Integer page) {
+        return quizService.getAllQuizzes(page);
     }
 
     @DeleteMapping("/{id}")
