@@ -134,13 +134,67 @@ None
     **Content:** `{ error : "NOT FOUND" }`
     
     
-***Get all quizzes***
+***Get all quizzes with paging***
 ----
-  To get all existing quizzes in the service, needs to send the `GET` request to `/api/quizzes`.
+  To get all existing quizzes in the service, needs to send the `GET` request to `/api/quizzes`. The API returns 10 quizzes and supports the navigation through pages by passing the `page` parameter `/api/quizzes?page=1`.
 
 * **URL**
 
   `/api/quizzes`
+
+* **Method:**
+
+  `GET`
+  
+*  **URL Params**
+
+ **Required:**
+
+None
+
+ **Optional:**
+
+  `page=[Integer]`
+
+* **Data Params**
+
+None
+
+* **Success Response:**
+
+  * **Code:** 200 <br />
+    **Content:** 
+    
+  ```
+  {
+    "totalPages":1,
+    "totalElements":3,
+    "last":true,
+    "first":true,
+    "sort":{ },
+    "number":0,
+    "numberOfElements":3,
+    "size":10,
+    "empty":false,
+    "pageable": { },
+    "content":[
+      {"id":102,"title":"Test 1","text":"Text 1","options":["a","b","c"]},
+      {"id":103,"title":"Test 2","text":"Text 2","options":["a", "b", "c", "d"]},
+      {"id":202,"title":"The Java Logo","text":"What is depicted on the Java logo?",
+       "options":["Robot","Tea leaf","Cup of coffee","Bug"]}
+    ]
+  }
+  ```
+    If there are no quizzes, the service returns an empty JSON array: [].
+    
+
+***Get all completions of quizzes with paging***
+----
+  To get all completions of quizzes for a specified user in the service, needs to send the `GET` request to `/api/quizzes/completed` together with the user auth data. All the completions were sorted from the most recent to the oldest.
+
+* **URL**
+
+  `/api/quizzes/completed`
 
 * **Method:**
 
@@ -162,22 +216,22 @@ None
     **Content:** 
     
   ```
-  [
-    {
-      "id": 1,
-      "title": "The Java Logo",
-      "text": "What is depicted on the Java logo?",
-      "options": ["Robot","Tea leaf","Cup of coffee","Bug"]
-    },
-    {
-      "id": 2,
-      "title": "The Ultimate Question",
-      "text": "What is the answer to the Ultimate Question of Life, the Universe and Everything?",
-      "options": ["Everything goes right","42","2+2=4","11011100"]
-    }
-  ]
+  {
+    "totalPages":1,
+    "totalElements":5,
+    "last":true,
+    "first":true,
+    "empty":false,
+    "content":[
+      {"id":103,"completedAt":"2019-10-29T21:13:53.779542"},
+      {"id":102,"completedAt":"2019-10-29T21:13:52.324993"},
+      {"id":101,"completedAt":"2019-10-29T18:59:58.387267"},
+      {"id":101,"completedAt":"2019-10-29T18:59:55.303268"},
+      {"id":202,"completedAt":"2019-10-29T18:59:54.033801"}
+    ]
+  }
   ```
-    If there are no quizzes, the service returns an empty JSON array: [].
+    If there are no quizzes, the service returns an empty JSON array: [].    
  
             
 ***Solve a quiz***
